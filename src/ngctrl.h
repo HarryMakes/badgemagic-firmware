@@ -13,6 +13,7 @@ uint8_t ble_setting(uint8_t *val, uint16_t len);
 uint8_t streaming_setting(uint8_t *val, uint16_t len);
 uint8_t stream_bitmap(uint8_t *val, uint16_t len);
 uint8_t flash_splash_screen(uint8_t *val, uint16_t len);
+uint8_t two_rows_text(uint8_t *params, uint16_t len);
 
 extern const uint8_t (*cmd_lut[])(uint8_t *val, uint16_t len);
 uint8_t ng_parse(uint8_t *val, uint16_t len);

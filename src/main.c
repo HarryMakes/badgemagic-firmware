@@ -340,6 +340,31 @@ static void fb_puts(char *s, int len, int col, int row)
 	}
 }
 
+uint8_t two_rows_text(uint8_t *params, uint16_t len)
+{
+	PRINT(__func__);
+	PRINT("\n");
+
+	// Incoming string format: <row-1-text>;<row-2-text>
+	char *params_buf = (char *)malloc(len + 1);
+	memcpy(params_buf, params, len);
+	params_buf[len] = 0;
+	char *tokens[2] = {NULL};
+	for (int i = 0; i < 2; ++i) {
+		if (!(tokens[i] = strtok(i == 0 ? params_buf : NULL, ";")))
+			return 1;
+		PRINT("token[%d]: %s\n", i, tokens[i]);
+	}
+	char *text1 = tokens[0];
+	char *text2 = tokens[1];
+
+	stop_all_animation();
+	fb_puts(text1, strlen(text1), 0, 0);
+	fb_puts(text2, strlen(text2), 6, 0);
+
+	return 0;
+}
+
 static void disp_charging()
 {
 	int blink = 0;

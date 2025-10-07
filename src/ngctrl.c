@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "config.h"
 #include "leddrv.h"
+#include <stdlib.h>
 
 // TODO: Some of configs can be added, just listing:
 // - Remote brighness adjusting
@@ -91,7 +92,7 @@ uint8_t flash_splash_screen(uint8_t *val, uint16_t len)
 {
 	PRINT(__func__);
 	PRINT("\n");
-	
+
 	uint8_t w = val[0];
 	uint8_t h = val[1];
 	uint8_t fh = val[2];
@@ -183,6 +184,7 @@ const uint8_t (*cmd_lut[])(uint8_t *val, uint16_t len) = {
 	save_cfg,
 	load_fallback_cfg,
 	misc,
+	two_rows_text,
 };
 
 #define CMD_LUT_LEN (sizeof(cmd_lut) / sizeof(cmd_lut[0]))
