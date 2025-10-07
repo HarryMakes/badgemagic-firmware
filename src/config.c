@@ -29,11 +29,17 @@ void cfg_fallback()
 
 	badge_cfg.splash_speedT = 30; // ms
 
+#if USE_FOSSASIA_SPLASH
 	int splash_size = ALIGN_1BYTE(splash.w) * splash.h;
 	memcpy(badge_cfg.splash_bm_bits, splash.bits, splash_size);
 	badge_cfg.splash_bm_w = splash.w;
 	badge_cfg.splash_bm_h = splash.h;
 	badge_cfg.splash_bm_fh = splash.fh;
+#else /* USE_FOSSASIA_SPLASH */
+	badge_cfg.splash_bm_w = 0;
+	badge_cfg.splash_bm_h = 0;
+	badge_cfg.splash_bm_fh = 11;
+#endif /* USE_FOSSASIA_SPLASH */
 
 	badge_cfg.reset_rx = FALSE;
 }
