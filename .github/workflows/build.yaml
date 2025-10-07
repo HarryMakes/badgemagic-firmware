@@ -6,7 +6,8 @@ on:
     branches: [master]
 
 env:
-  MRS_TOOLCHAIN: MRS_Toolchain_Linux_x64_V1.91
+  MRS_TOOLCHAIN_VERSION: 1.91
+  MRS_TOOLCHAIN: riscv-none-embed-gcc-8-linux-1.91
   USBC_BUILD_DIR: usb-c
   MICROB_BUILD_DIR: micro-b
   BIN_TYPES: '{.bin,.elf}'
@@ -29,12 +30,12 @@ jobs:
       - if: ${{ steps.cache-toolchain.outputs.cache-hit != 'true' }}
         name: Download toolchain
         run: |
-          wget http://file-oss.mounriver.com/tools/${{ env.MRS_TOOLCHAIN }}.tar.xz
-          tar -xvf ${{ env.MRS_TOOLCHAIN }}.tar.xz
+          wget https://github.com/ch32-riscv-ug/MounRiver_Studio_Community_miror/releases/download/${{ env.MRS_TOOLCHAIN_VERSION }}-toolchain/${{ env.MRS_TOOLCHAIN }}.zip
+          unzip ${{ env.MRS_TOOLCHAIN }}.zip
 
       - name: Build firmware
         run: |
-          export PREFIX=${{ env.MRS_TOOLCHAIN }}/RISC-V_Embedded_GCC/bin/riscv-none-embed-
+          export PREFIX=${{ env.MRS_TOOLCHAIN }}/bin/riscv-none-embed-
           BUILD_DIR=${{ env.USBC_BUILD_DIR }} USBC_VERSION=1 make -j$(nproc)
           BUILD_DIR=${{ env.MICROB_BUILD_DIR }} make -j$(nproc)
 

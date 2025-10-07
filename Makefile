@@ -21,7 +21,7 @@ OPT = -Os
 VERSION = $(shell git describe --tags --dirty)
 VERSION_ABBR = $(shell git describe --abbrev=0 --tags 2>/dev/null || echo "unknown")
 ifeq ($(VERSION_ABBR),unknown)
-	$(warning Unable to determine version from git tags)
+$(warning Unable to determine version from git tags)
 endif
 
 #######################################
