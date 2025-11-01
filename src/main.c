@@ -35,7 +35,7 @@ enum MODES {
 
 #define ANI_BASE_SPEED_T      (200000) // uS
 #define ANI_MARQUE_SPEED_T    (100000) // uS
-#define ANI_ZOOM_SPEED_T     (500000) // uS
+#define ANI_ZOOM_SPEED_T      (30000) // uS
 #define SCAN_BOOTLD_BTN_SPEED_T         (200000) // uS
 #define ANI_SPEED_STRATEGY(speed_level) \
 				(ANI_BASE_SPEED_T - ((speed_level) \
@@ -43,7 +43,7 @@ enum MODES {
 
 #define ANI_NEXT_STEP       (1 << 0)
 #define ANI_MARQUE          (1 << 1)
-#define ANI_ZOOM           (1 << 2)
+#define ANI_ZOOM            (1 << 2)
 #define SCAN_BOOTLD_BTN     (1 << 3)
 #define BLE_NEXT_STEP       (1 << 4)
 
@@ -187,7 +187,7 @@ static uint16_t common_tasks(tmosTaskID task_id, uint16_t events)
 
 	if (events & ANI_ZOOM) {
 		bm_t *bm = bmlist_current();
-		if (++zoom_step >= LED_COLS*4) {
+		if (++zoom_step >= ANI_ZOOM_STEPS) {
 			zoom_step = 0;
 		}
 

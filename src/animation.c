@@ -495,7 +495,10 @@ void ani_zoom(bm_t *bm, uint16_t *fb, int step)
 		int zoom_offset = (step < LED_COLS/2) ? step : (LED_COLS/2-1 - (step-LED_COLS*3));
 		/* The two edge columns are the next column to be zoomed in the next step */
 		fb[0] = bm->buf[LED_COLS/2 - zoom_offset - 1];
-		fb[LED_COLS-1] = bm->buf[LED_COLS/2 + zoom_offset];
+		if (LED_COLS/2 + zoom_offset >= bm->width)
+			fb[LED_COLS-1] = 0;
+		else
+			fb[LED_COLS-1] = bm->buf[LED_COLS/2 + zoom_offset];
 		/* Only zoom in/out the middlemost <cols_to_zoom> columns */
 		int col_offset;
 		for (col_offset = 0 ; col_offset < LED_COLS/2-1; ++col_offset) {
@@ -503,11 +506,14 @@ void ani_zoom(bm_t *bm, uint16_t *fb, int step)
 				fb[LED_COLS/2 - col_offset - 1] = 0;
 				fb[LED_COLS/2 + col_offset] = 0;
 			} else {
-				const int zoom_index = col_offset*zoom_offset/(LED_COLS/2-1);
+				int zoom_index = col_offset*zoom_offset/(LED_COLS/2-1);
 				fb[LED_COLS/2 - col_offset - 1] = bm->buf[
 					LED_COLS/2 - 1 - zoom_index
 				];
-				fb[LED_COLS/2 + col_offset] = bm->buf[
+				if (LED_COLS/2 + zoom_index >= bm->width)
+					fb[LED_COLS/2 + col_offset] = 0;
+				else
+					fb[LED_COLS/2 + col_offset] = bm->buf[
 					LED_COLS/2 + zoom_index
 				];
 			}
@@ -516,8 +522,11 @@ void ani_zoom(bm_t *bm, uint16_t *fb, int step)
 	else {
 		int i;
 		/* Display all columns */
-		for (i = 0 ; i < LED_COLS; i++) {
+		for (i = 0 ; i < MIN(LED_COLS, bm->width); ++i) {
 			fb[i] = bm->buf[i];
+		}
+		for (; i < LED_COLS; ++i) {
+			fb[i] = 0;
 		}
 	}
 }

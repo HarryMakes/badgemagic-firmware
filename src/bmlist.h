@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define ANI_ZOOM_STEPS        (LED_COLS*7/2-1)
+
 typedef struct bm_st {
 	uint16_t   *buf;
 	uint16_t    width;
