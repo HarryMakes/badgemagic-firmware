@@ -92,7 +92,7 @@ bm_t *flash2newbm(uint32_t n)
 	data_legacy_t header;
 	data_get_header(&header);
 
-	bm->is_flash = (header.flash & (1 << n)) != 0;
+	bm->is_zoom = (header.flash & (1 << n)) != 0;
 	bm->is_marquee = (header.marquee & (1 << n)) != 0;
 	bm->modes = header.modes[n];
 

@@ -164,6 +164,36 @@ LDFLAGS = $(MCU) -mno-save-restore -fmessage-length=0 -fsigned-char -ffunction-s
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
+# ------------------------------
+# Host unit test configuration
+# ------------------------------
+# Compiler to build and run unit tests on the host (native)
+HOST_CC ?= gcc
+# Include tests/vendor/unity and tests/include first so test-only headers shadow hardware ones
+# Force-include the test leddrv stub so the MCU header in src/ is skipped
+# (the compiler searches the directory of the including source first for
+# "leddrv.h", so adding -Itests/include is not sufficient). Pre-including the
+# test header combined with using the same include guard as the real header
+# prevents the real header from being processed during host tests.
+HOST_CFLAGS ?= -include tests/include/leddrv.h -Itests/vendor/unity -Itests/include -Isrc -DUNIT_TEST -O0 -g -Wall
+
+TEST_BIN = $(BUILD_DIR)/test_ani_zoom
+
+# Sources compiled into the host test binary. Keep it minimal: the animation
+# implementation and any helper modules it needs (xbm.c), plus the Unity runner
+# and the test source.
+TEST_SRCS = tests/test_ani_zoom.c src/animation.c src/xbm.c tests/vendor/unity/unity.c
+
+.PHONY: test
+test: $(TEST_BIN)
+	@echo "Running unit tests..."
+	$(TEST_BIN)
+
+$(TEST_BIN): $(TEST_SRCS)
+	@mkdir -pv $(dir $@)
+	$(HOST_CC) $(HOST_CFLAGS) $(TEST_SRCS) -o $@
+
+
 
 #######################################
 # build the application

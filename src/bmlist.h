@@ -8,7 +8,7 @@ typedef struct bm_st {
 	uint16_t   *buf;
 	uint16_t    width;
 	uint8_t     modes;
-	int         is_flash;
+	int         is_zoom;
 	int         is_marquee;
 	// TODO: feat: Brightness for each bm
 	int         brightness;

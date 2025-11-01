@@ -35,7 +35,7 @@ enum MODES {
 
 #define ANI_BASE_SPEED_T      (200000) // uS
 #define ANI_MARQUE_SPEED_T    (100000) // uS
-#define ANI_FLASH_SPEED_T     (500000) // uS
+#define ANI_ZOOM_SPEED_T     (500000) // uS
 #define SCAN_BOOTLD_BTN_SPEED_T         (200000) // uS
 #define ANI_SPEED_STRATEGY(speed_level) \
 				(ANI_BASE_SPEED_T - ((speed_level) \
@@ -43,7 +43,7 @@ enum MODES {
 
 #define ANI_NEXT_STEP       (1 << 0)
 #define ANI_MARQUE          (1 << 1)
-#define ANI_FLASH           (1 << 2)
+#define ANI_ZOOM           (1 << 2)
 #define SCAN_BOOTLD_BTN     (1 << 3)
 #define BLE_NEXT_STEP       (1 << 4)
 
@@ -120,7 +120,7 @@ void load_bmlist()
 
 static uint16_t common_tasks(tmosTaskID task_id, uint16_t events)
 {
-	static int marque_step, flash_step;
+	static int marque_step, zoom_step;
 
 	if(events & SYS_EVENT_MSG) {
 		uint8 *pMsg = tmos_msg_receive(common_taskid);
@@ -152,8 +152,8 @@ static uint16_t common_tasks(tmosTaskID task_id, uint16_t events)
 				bmlist_gonext();
 			}
 
-		if (bm->is_flash) {
-			ani_flash(bm, fb, flash_step);
+		if (bm->is_zoom) {
+			ani_zoom(bm, fb, zoom_step);
 		}
 		if (bm->is_marquee) {
 			ani_marque(bm, fb, marque_step);
@@ -185,21 +185,17 @@ static uint16_t common_tasks(tmosTaskID task_id, uint16_t events)
 		return events ^ SCAN_BOOTLD_BTN;
 	}
 
-	if (events & ANI_FLASH) {
+	if (events & ANI_ZOOM) {
 		bm_t *bm = bmlist_current();
-		flash_step++;
-
-		if (bm->is_flash) {
-			ani_flash(bm, fb, flash_step);
-		}
-		/* After flash is applied, it will potentialy overwrite the marque
-		effect after it just wrote, results in flickering. So here apply the
-		marque effect again */
-		if (bm->is_marquee) {
-			ani_marque(bm, fb, marque_step);
+		if (++zoom_step >= LED_COLS*4) {
+			zoom_step = 0;
 		}
 
-		return events ^ ANI_FLASH;
+		if (bm->is_zoom) {
+			ani_zoom(bm, fb, zoom_step);
+		}
+
+		return events ^ ANI_ZOOM;
 	}
 
 	if (events & BLE_NEXT_STEP) {
@@ -233,7 +229,7 @@ static void spawn_tasks()
 	common_taskid = TMOS_ProcessEventRegister(common_tasks);
 
 	tmos_start_reload_task(common_taskid, ANI_MARQUE, ANI_MARQUE_SPEED_T / 625);
-	tmos_start_reload_task(common_taskid, ANI_FLASH, ANI_FLASH_SPEED_T / 625);
+	tmos_start_reload_task(common_taskid, ANI_ZOOM, ANI_ZOOM_SPEED_T / 625);
 	tmos_start_reload_task(common_taskid, SCAN_BOOTLD_BTN,
 				SCAN_BOOTLD_BTN_SPEED_T / 625);
 	tmos_start_task(common_taskid, ANI_NEXT_STEP, 500000 / 625);
@@ -243,7 +239,7 @@ static void start_ble_animation()
 {
 	tmos_stop_task(common_taskid, ANI_NEXT_STEP);
 	tmos_stop_task(common_taskid, ANI_MARQUE);
-	tmos_stop_task(common_taskid, ANI_FLASH);
+	tmos_stop_task(common_taskid, ANI_ZOOM);
 	memset(fb, 0, sizeof(fb));
 
 	tmos_start_reload_task(common_taskid, BLE_NEXT_STEP, 500000 / 625);
@@ -252,7 +248,7 @@ static void start_ble_animation()
 static void start_normal_animation()
 {
 	tmos_start_reload_task(common_taskid, ANI_MARQUE, ANI_MARQUE_SPEED_T / 625);
-	tmos_start_reload_task(common_taskid, ANI_FLASH, ANI_FLASH_SPEED_T / 625);
+	tmos_start_reload_task(common_taskid, ANI_ZOOM, ANI_ZOOM_SPEED_T / 625);
 	tmos_start_task(common_taskid, ANI_NEXT_STEP, 500000 / 625);
 	tmos_stop_task(common_taskid, BLE_NEXT_STEP);
 }
@@ -270,7 +266,7 @@ static void stop_all_animation()
 {
 	tmos_stop_task(common_taskid, ANI_NEXT_STEP);
 	tmos_stop_task(common_taskid, ANI_MARQUE);
-	tmos_stop_task(common_taskid, ANI_FLASH);
+	tmos_stop_task(common_taskid, ANI_ZOOM);
 	tmos_stop_task(common_taskid, BLE_NEXT_STEP);
 	memset(fb, 0, sizeof(fb));
 }

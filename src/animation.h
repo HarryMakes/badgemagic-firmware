@@ -29,6 +29,6 @@ int ani_animation(bm_t *bm, uint16_t *fb);
 int ani_picture(bm_t *bm, uint16_t *fb);
 
 void ani_marque(bm_t *bm, uint16_t *fb, int step);
-void ani_flash(bm_t *bm, uint16_t *fb, int step);
+void ani_zoom(bm_t *bm, uint16_t *fb, int step);
 
 #endif /* __ANIMATION_H__ */

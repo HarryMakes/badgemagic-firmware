@@ -485,8 +485,39 @@ void ani_marque(bm_t *bm, uint16_t *fb, int step)
 
 }
 
-void ani_flash(bm_t *bm, uint16_t *fb, int step)
+void ani_zoom(bm_t *bm, uint16_t *fb, int step)
 {
-	if (!(step % 2))
-		fb_fill(fb, 0);
+	/* Steps 0 ~ LED_COLS/2-1 : Zoom out the middlemost <step-2> columns */
+	/* Steps LED_COLS/2 ~ LED_COLS*3-1 : Display all columns */
+	/* Steps LED_COLS*3 ~ LED_COLS*7/2-1 : Zoom in the middlemost <LED_COLS/2-1-(step-LED_COLS*3)-2> columns */
+
+	if (step < LED_COLS/2 || step >= LED_COLS*3) {
+		int zoom_offset = (step < LED_COLS/2) ? step : (LED_COLS/2-1 - (step-LED_COLS*3));
+		/* The two edge columns are the next column to be zoomed in the next step */
+		fb[0] = bm->buf[LED_COLS/2 - zoom_offset - 1];
+		fb[LED_COLS-1] = bm->buf[LED_COLS/2 + zoom_offset];
+		/* Only zoom in/out the middlemost <cols_to_zoom> columns */
+		int col_offset;
+		for (col_offset = 0 ; col_offset < LED_COLS/2-1; ++col_offset) {
+			if (zoom_offset == 0) {
+				fb[LED_COLS/2 - col_offset - 1] = 0;
+				fb[LED_COLS/2 + col_offset] = 0;
+			} else {
+				const int zoom_index = col_offset*zoom_offset/(LED_COLS/2-1);
+				fb[LED_COLS/2 - col_offset - 1] = bm->buf[
+					LED_COLS/2 - 1 - zoom_index
+				];
+				fb[LED_COLS/2 + col_offset] = bm->buf[
+					LED_COLS/2 + zoom_index
+				];
+			}
+		}
+	}
+	else {
+		int i;
+		/* Display all columns */
+		for (i = 0 ; i < LED_COLS; i++) {
+			fb[i] = bm->buf[i];
+		}
+	}
 }
